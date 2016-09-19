@@ -1338,7 +1338,14 @@ public class ServiceStateTracker extends Handler {
                 setPowerStateToDesired();
                 boolean forceTrigger =
                     mCi.getRadioState() != TelephonyManager.RADIO_POWER_OFF;
-                pollStateInternal(forceTrigger);
+                if (needsLegacyPollState()) {
+                    // Some older radio blobs need this to put device
+                    // properly into airplane mode.
+                    pollState();
+                } else {
+                    // These events are modem triggered, so pollState() needs to be forced
+                    pollStateInternal(forceTrigger);
+                }
                 break;
 
             case EVENT_NETWORK_STATE_CHANGED:
@@ -6077,5 +6084,12 @@ public class ServiceStateTracker extends Handler {
      */
     public @Nullable CellIdentity getLastKnownCellIdentity() {
         return mLastKnownCellIdentity;
+    }
+
+    private boolean needsLegacyPollState() {
+        if (mCi instanceof RIL) {
+            return ((RIL) mCi).needsOldRilFeature("legacypollstate");
+        }
+        return false;
     }
 }
