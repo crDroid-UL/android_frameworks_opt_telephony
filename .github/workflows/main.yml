@@ -1,0 +1,21 @@
+name: Upstream CI
+
+on: 
+  schedule:
+    - cron: "0 10 * * 0"
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v1
+    - name: Fetch upstream
+      uses: tjusl/sync-upstream-repo@v0.1.6
+      with:
+      #Git upstream repo
+        upstream_repo: https://github.com/crdroidandroid/android_frameworks_opt_telephony.git
+        upstream_branch: 13.0
+        local_branch: 13.0
+        github_token: ${{ secrets.TOKEN }}
+        
